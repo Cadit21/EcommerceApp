@@ -1,20 +1,40 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import React, { useRef, useState } from "react";
+import { View } from "react-native";
+import { NavigationContainer } from "@react-navigation/native";
+import { createStackNavigator } from "@react-navigation/stack";
+import HomeScreen from "./Components/HomeScreen";
+import CartScreen from "./Components/CartScreen";
+import WishlistScreen from "./Components/Wishlist";
+import FloatingWishlistButton from "./Components/WishListScreen";
+
+const Stack = createStackNavigator();
 
 export default function App() {
+  const navigationRef = useRef();
+  const [currentRoute, setCurrentRoute] = useState("Home"); // 👈 define state
+
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <NavigationContainer
+      ref={navigationRef}
+      onReady={() => {
+        setCurrentRoute(navigationRef.current.getCurrentRoute().name);
+      }}
+      onStateChange={() => {
+        const currentRouteName = navigationRef.current.getCurrentRoute().name;
+        setCurrentRoute(currentRouteName);
+      }}
+    >
+      <View style={{ flex: 1 }}>
+        <Stack.Navigator screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="Home" component={HomeScreen} />
+          <Stack.Screen name="Cart" component={CartScreen} />
+          <Stack.Screen name="Wishlist" component={WishlistScreen} />
+          {/* other screens */}
+        </Stack.Navigator>
+
+        {/* Only show button if not on Wishlist screen */}
+        {currentRoute !== "Wishlist" && <FloatingWishlistButton />}
+      </View>
+    </NavigationContainer>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
