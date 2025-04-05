@@ -12,16 +12,40 @@ import {
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Ionicons } from "@expo/vector-icons";
+import { useIsFocused } from '@react-navigation/native'; // 🆕
+
 
 const screenWidth = Dimensions.get("window").width;
 const cardWidth = screenWidth * 0.9;
 
-const ProductList = ({ searchQuery = "" }) => {
+const ProductList = ({ searchQuery = "", navigation }) => {
   const [products, setProducts] = useState([]);
   const [wishlist, setWishlist] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const flatListRef = useRef(null);
+
+  const isFocused = useIsFocused();
+
+useEffect(() => {
+  const fetchData = async () => {
+    try {
+      const res = await fetch("https://fakestoreapi.com/products");
+      const data = await res.json();
+      setProducts(data);
+      loadWishlist();
+      setLoading(false);
+    } catch {
+      setError("Failed to load products");
+      setLoading(false);
+    }
+  };
+
+  if (isFocused) {
+    fetchData();
+  }
+}, [isFocused]); // 👈 This will trigger every time screen gains focus
+
 
   useEffect(() => {
     fetch("https://fakestoreapi.com/products")
@@ -91,38 +115,45 @@ const ProductList = ({ searchQuery = "" }) => {
   useEffect(() => {
     if (!flatListRef.current || !searchQuery || filteredProducts.length === 0) return;
 
-    const index = 0; // scroll to top of filtered list
+    const index = 0;
     setTimeout(() => {
       try {
         flatListRef.current?.scrollToIndex({ index, animated: true });
       } catch (err) {
         console.warn("Scroll failed", err);
       }
-    }, 500); // wait a bit for layout
+    }, 500);
   }, [searchQuery]);
 
   const renderCard = ({ item }) => {
     const isWishlisted = wishlist.some((w) => w.id === item.id);
 
     return (
-      <View style={styles.productCard}>
-        <Image source={{ uri: item.image }} style={styles.productImage} />
-        <TouchableOpacity
-          style={styles.wishlistIcon}
-          onPress={() => toggleWishlist(item)}
-        >
-          <Ionicons
-            name={isWishlisted ? "heart" : "heart-outline"}
-            size={22}
-            color={isWishlisted ? "#ff3366" : "#fff"}
-          />
-        </TouchableOpacity>
-        <Text style={styles.productName}>{item.title}</Text>
-        <Text style={styles.productPrice}>₹{item.price.toFixed(2)}</Text>
-        <TouchableOpacity style={styles.addButton} onPress={() => addToCart(item)}>
-          <Text style={styles.addButtonText}>Add to Cart</Text>
-        </TouchableOpacity>
-      </View>
+      <TouchableOpacity
+        onPress={() => navigation.navigate("ProductDetails", { product: item })}
+      >
+        <View style={styles.productCard}>
+          <Image source={{ uri: item.image }} style={styles.productImage} />
+          <TouchableOpacity
+            style={styles.wishlistIcon}
+            onPress={() => toggleWishlist(item)}
+          >
+            <Ionicons
+              name={isWishlisted ? "heart" : "heart-outline"}
+              size={22}
+              color={isWishlisted ? "#ff3366" : "#fff"}
+            />
+          </TouchableOpacity>
+          <Text style={styles.productName}>{item.title}</Text>
+          <Text style={styles.productPrice}>₹{item.price.toFixed(2)}</Text>
+          <TouchableOpacity
+            style={styles.addButton}
+            onPress={() => addToCart(item)}
+          >
+            <Text style={styles.addButtonText}>Add to Cart</Text>
+          </TouchableOpacity>
+        </View>
+      </TouchableOpacity>
     );
   };
 
@@ -130,13 +161,13 @@ const ProductList = ({ searchQuery = "" }) => {
   if (error) return <Text style={styles.error}>{error}</Text>;
 
   return (
-    <FlatList style={{ width: '100%' }}
-
+    <FlatList
+      style={{ width: "100%" }}
       ref={flatListRef}
       data={filteredProducts}
       keyExtractor={(item) => item.id.toString()}
       renderItem={renderCard}
-      contentContainerStyle={{ padding: 20,alignItems: 'center',  }}
+      contentContainerStyle={{ padding: 20, alignItems: "center" }}
       ListEmptyComponent={<Text style={styles.noResults}>No products found.</Text>}
       onScrollToIndexFailed={(info) => {
         setTimeout(() => {
@@ -166,7 +197,6 @@ const styles = StyleSheet.create({
     shadowRadius: 20,
     borderColor: "rgba(255, 255, 255, 0.3)",
     borderWidth: 0.5,
-    
   },
   productImage: {
     width: "100%",

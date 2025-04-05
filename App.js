@@ -6,6 +6,7 @@ import HomeScreen from "./Components/HomeScreen";
 import CartScreen from "./Components/CartScreen";
 import WishlistScreen from "./Components/Wishlist";
 import FloatingWishlistButton from "./Components/WishListScreen";
+import ProductPage from "./Components/ProductDetails";
 
 const Stack = createStackNavigator();
 
@@ -29,6 +30,8 @@ export default function App() {
           <Stack.Screen name="Home" component={HomeScreen} />
           <Stack.Screen name="Cart" component={CartScreen} />
           <Stack.Screen name="Wishlist" component={WishlistScreen} />
+          <Stack.Screen name="ProductDetails" component={ProductPage} />
+
           {/* other screens */}
         </Stack.Navigator>
 

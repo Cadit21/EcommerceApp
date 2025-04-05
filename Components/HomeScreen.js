@@ -98,7 +98,8 @@ const HomeScreen = ({ navigation }) => {
                     },
                   ]}
                 >
-                 <ProductList searchQuery={searchQuery} />
+                <ProductList searchQuery={searchQuery} navigation={navigation} />
+
 
                   
                   
