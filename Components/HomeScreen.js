@@ -66,7 +66,7 @@ const HomeScreen = ({ navigation }) => {
                       <Text style={styles.navText}>Orders</Text>
                     </TouchableOpacity>
                     <TouchableOpacity>
-                      <Text style={styles.navText}>Logout</Text>
+                      <Text style={styles.navText}>Login</Text>
                     </TouchableOpacity>
                   </View>
                 </View>
