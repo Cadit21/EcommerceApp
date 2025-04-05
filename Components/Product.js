@@ -120,7 +120,7 @@ const ProductList = ({ searchQuery = "" }) => {
         <Text style={styles.productName}>{item.title}</Text>
         <Text style={styles.productPrice}>₹{item.price.toFixed(2)}</Text>
         <TouchableOpacity style={styles.addButton} onPress={() => addToCart(item)}>
-          <Text style={styles.addButtonText}>Add to Tray</Text>
+          <Text style={styles.addButtonText}>Add to Cart</Text>
         </TouchableOpacity>
       </View>
     );
